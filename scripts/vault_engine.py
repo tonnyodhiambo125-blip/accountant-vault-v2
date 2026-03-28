@@ -1,23 +1,35 @@
 import json
+import os
 from datetime import datetime
 
-def update_vault():
-    # This data will be sent to your Chrome browser
-    vault_data = {
-        "last_sync": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "system_status": "Active",
+# Path to the shared JSON file
+FILE_PATH = 'automations.json'
+
+def update_vault_data():
+    """
+    This script runs on GitHub and generates the latest 
+    tax and system data for your website banner.
+    """
+    print("Starting Vault Engine Sync...")
+
+    # Data structure that the website reads
+    vault_status = {
+        "last_sync": datetime.now().strftime("%d %b %Y, %H:%M"),
+        "status": "System Online",
         "tax_deadlines": [
             {"agency": "KRA (VAT)", "deadline": "20th of every month"},
-            {"agency": "PAYE / Housing Levy", "deadline": "9th of every month"},
-            {"agency": "NTSA (Inspection)", "deadline": "Check Expiry"}
+            {"agency": "PAYE", "deadline": "9th of every month"},
+            {"agency": "Housing Levy", "deadline": "9th of every month"},
+            {"agency": "eCitizen", "deadline": "Review Weekly"}
         ]
     }
 
-    # Save it to the bridge file
-    with open('automations.json', 'w') as f:
-        json.dump(vault_data, f, indent=4)
-    
-    print(f"✅ Vault updated at {vault_data['last_sync']}")
+    try:
+        with open(FILE_PATH, 'w') as f:
+            json.dump(vault_status, f, indent=4)
+        print(f"✅ Successfully updated {FILE_PATH} at {vault_status['last_sync']}")
+    except Exception as e:
+        print(f"❌ Error updating vault: {e}")
 
 if __name__ == "__main__":
-    update_vault()
+    update_vault_data()

@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accountant Vault v2</title>
+    <title>Accountant Vault v2 | Professional</title>
     <style>
-        :root { --primary: #0747a6; --accent: #ffd700; --bg: #f4f7f9; --text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: var(--text); }
+        :root { --primary: #0747a6; --accent: #ffd700; --bg: #f4f7f9; --text: #333; --danger: #ff5630; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: var(--text); }
         
-        /* Lock Screen */
+        /* LOCK SCREEN: High-priority overlay to prevent unauthorized viewing during load */
         #lock-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 10000; }
         .lock-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .lock-box input { width: 100%; padding: 15px; margin: 20px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 24px; box-sizing: border-box; }
 
-        /* Header & Navigation */
+        /* HEADER: Navigation and Sync Status */
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
         
-        /* Python Automation Banner */
-        #python-banner { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--primary); display: none; font-size: 14px; }
+        /* PYTHON BANNER: Displays real-time data from your scripts */
+        #python-banner { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--primary); display: none; font-size: 14px; line-height: 1.6; }
         
-        /* Client Grid */
+        /* GRID: Responsive layout for client folders */
         .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
         .client-card { background: white; padding: 30px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; }
         .client-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        
-        /* Folder View (Agencies) */
+        .delete-client { position: absolute; top: 10px; right: 10px; color: #ccc; cursor: pointer; font-weight: bold; }
+        .delete-client:hover { color: var(--danger); }
+
+        /* AGENCY LIST: Inside the folder view */
         .agency-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; text-align: center; }
 
-        /* Buttons */
+        /* MODAL: Popup for editing credentials */
+        #cred-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+
+        /* BUTTONS */
         .btn-blue { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
         .btn-outline { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 8px; width: 100%; font-size: 12px; }
         .logout-btn { background: transparent; border: 1px solid white; color: white; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; }
@@ -39,8 +46,9 @@
 
     <div id="lock-screen">
         <div class="lock-box">
-            <h2 style="margin:0;">Secure Vault</h2>
-            <p style="color:#666; font-size:14px;">Authorized Personnel Only</p>
+            <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+            <h2 style="margin:0;">Vault Locked</h2>
+            <p style="color:#666; font-size:14px;">Enter PIN to access client database</p>
             <input type="password" id="pin-input" placeholder="••••" maxlength="4">
             <button class="btn-blue" onclick="attemptUnlock()">Unlock Vault</button>
         </div>
@@ -49,8 +57,8 @@
     <div id="main-app" style="display:none">
         <header>
             <div>
-                <h2 style="margin:0;">Accountant Vault v2</h2>
-                <small id="sync-status" style="opacity:0.8;">Checking Python Sync...</small>
+                <h2 style="margin:0;">🇰🇪 Accountant Vault Pro</h2>
+                <small id="sync-status" style="opacity:0.8;">Syncing with Python Engine...</small>
             </div>
             <button class="logout-btn" onclick="terminateSession()">Secure Logout</button>
         </header>
@@ -60,8 +68,8 @@
 
             <div id="home-view">
                 <div style="display:flex; gap:10px; margin-bottom:30px;">
-                    <input type="text" id="newClientName" placeholder="Client or Company Name..." style="flex:1; padding:15px; border-radius:10px; border:1px solid #ddd;">
-                    <button onclick="createNewFolder()" style="width:150px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">+ Add Folder</button>
+                    <input type="text" id="newClientName" placeholder="Enter Company or Individual Name..." style="flex:1; padding:15px; border-radius:10px; border:1px solid #ddd;">
+                    <button onclick="createNewFolder()" style="width:150px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">+ Create Folder</button>
                 </div>
                 <div class="client-grid" id="clientGrid"></div>
             </div>
@@ -74,20 +82,37 @@
         </div>
     </div>
 
+    <div id="cred-modal">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-top:0; color:var(--primary);">Edit Login</h3>
+            <label style="font-size:12px; color:#666;">Username / ID Number</label>
+            <input type="text" id="edit-user">
+            <label style="font-size:12px; color:#666;">Password / PIN</label>
+            <input type="password" id="edit-pass">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-blue" onclick="saveAgencyCreds()">Save Credentials</button>
+                <button onclick="closeModal()" style="background:#eee; border:none; padding:10px; border-radius:8px; cursor:pointer; flex:1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- 1. CONFIGURATION & STATE ---
+        // 1. STATE & CONFIGURATION
         const MASTER_PIN = "1234";
         let clients = JSON.parse(localStorage.getItem('v2_clients')) || [];
         let currentClientId = null;
+        let activeAgencyKey = null;
+
         const agencyConfig = [
             { id: 'kra', name: 'KRA iTax', url: 'https://itax.kra.go.ke/' },
             { id: 'ecitizen', name: 'eCitizen', url: 'https://accounts.ecitizen.go.ke/' },
-            { id: 'ntsa', name: 'NTSA Portal', url: 'https://timsvirl.ntsa.go.ke/' }
+            { id: 'ntsa', name: 'NTSA Portal', url: 'https://timsvirl.ntsa.go.ke/' },
+            { id: 'huduma', name: 'Huduma Kenya', url: 'https://www.hudumakenya.go.ke/' }
         ];
 
-        // --- 2. THE "IRONCLAD" LOGIN CHECK ---
-        // This runs immediately to check if you are already logged in
+        // 2. AUTHENTICATION (STATIONARY LOGIN FIX)
         function checkAuthStatus() {
+            // We use localStorage so the "true" status survives page refreshes
             const isAuth = localStorage.getItem('v2_authenticated');
             if (isAuth === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -96,16 +121,17 @@
                 loadPythonData();
             }
         }
+        // Run immediately when page loads
         document.addEventListener('DOMContentLoaded', checkAuthStatus);
 
         function attemptUnlock() {
-            const pin = document.getElementById('pin-input').value;
-            if (pin === MASTER_PIN) {
+            const pinInput = document.getElementById('pin-input');
+            if (pinInput.value === MASTER_PIN) {
                 localStorage.setItem('v2_authenticated', 'true');
-                checkAuthStatus(); // Instantly switch views
+                checkAuthStatus();
             } else {
-                alert("Invalid PIN");
-                document.getElementById('pin-input').value = "";
+                alert("Incorrect PIN");
+                pinInput.value = "";
             }
         }
 
@@ -114,59 +140,111 @@
             location.reload();
         }
 
-        // --- 3. PYTHON AUTOMATION SYNC ---
+        // 3. DATA SYNC (PYTHON BRIDGE)
         async function loadPythonData() {
             try {
-                // Fetch the JSON created by your Python script
+                // Fetch automations.json with a timestamp to bypass browser cache
                 const response = await fetch(`./automations.json?nocache=${Date.now()}`);
                 const data = await response.json();
-                
-                document.getElementById('sync-status').innerText = "Last Sync: " + data.last_sync;
-                
+                document.getElementById('sync-status').innerText = "Last Python Sync: " + data.last_sync;
                 const banner = document.getElementById('python-banner');
                 banner.style.display = 'block';
-                banner.innerHTML = `<strong>📢 TAX CALENDAR:</strong> ` + 
+                banner.innerHTML = `<strong>🗓️ TAX CALENDAR:</strong> ` + 
                     data.tax_deadlines.map(t => `${t.agency}: ${t.deadline}`).join(' | ');
             } catch (e) {
-                console.log("Waiting for GitHub Action to generate first automations.json...");
+                console.log("Python data syncing via GitHub Actions...");
             }
         }
 
-        // --- 4. CLIENT FOLDER LOGIC ---
+        // 4. CLIENT MANAGEMENT
         function createNewFolder() {
-            const name = document.getElementById('newClientName').value;
-            if (!name) return;
-            const newClient = { id: Date.now(), name: name, credentials: {} };
+            const nameInput = document.getElementById('newClientName');
+            if (!nameInput.value) return;
+            // Initialize new client with empty credentials object
+            const newClient = { id: Date.now(), name: nameInput.value, credentials: {} };
             clients.push(newClient);
-            syncStorage();
+            saveData();
             renderClientGrid();
-            document.getElementById('newClientName').value = '';
+            nameInput.value = '';
         }
 
         function renderClientGrid() {
             const grid = document.getElementById('clientGrid');
             grid.innerHTML = clients.map(c => `
                 <div class="client-card" onclick="openClientFolder(${c.id})">
+                    <span class="delete-client" onclick="event.stopPropagation(); deleteClient(${c.id})">×</span>
                     <div style="font-size:50px">📁</div>
                     <strong>${c.name}</strong>
                 </div>
             `).join('');
         }
 
+        function deleteClient(id) {
+            if (confirm("Delete this client folder?")) {
+                clients = clients.filter(c => c.id !== id);
+                saveData();
+                renderClientGrid();
+            }
+        }
+
+        // 5. AGENCY & PASSWORD MANAGEMENT
         function openClientFolder(id) {
             currentClientId = id;
             const client = clients.find(c => c.id === id);
+            if (!client.credentials) client.credentials = {};
+
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('folder-view').style.display = 'block';
             document.getElementById('activeFolderName').innerText = client.name;
             
             const agencyGrid = document.getElementById('agencyGrid');
-            agencyGrid.innerHTML = agencyConfig.map(a => `
-                <div class="agency-card">
-                    <strong>${a.name}</strong>
-                    <button class="btn-outline" onclick="window.open('${a.url}', '_blank')">Open Portal</button>
-                </div>
-            `).join('');
+            agencyGrid.innerHTML = agencyConfig.map(a => {
+                const creds = client.credentials[a.id] || { u: 'N/A', p: '' };
+                return `
+                    <div class="agency-card">
+                        <strong style="color:var(--primary)">${a.name}</strong>
+                        <div style="font-size:11px; margin:8px 0; color:#777;">User: ${creds.u}</div>
+                        <button class="btn-outline" onclick="launchAgency('${a.id}')">Launch & Copy Pass</button>
+                        <button class="btn-outline" style="border-color:#ccc; color:#666;" onclick="openEditModal('${a.id}')">Edit Credentials</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openEditModal(agencyId) {
+            activeAgencyKey = agencyId;
+            const client = clients.find(c => c.id === currentClientId);
+            const currentCreds = client.credentials[agencyId] || { u: '', p: '' };
+            
+            document.getElementById('modal-title').innerText = "Edit " + agencyId.toUpperCase();
+            document.getElementById('edit-user').value = currentCreds.u;
+            document.getElementById('edit-pass').value = currentCreds.p;
+            document.getElementById('cred-modal').style.display = 'flex';
+        }
+
+        function saveAgencyCreds() {
+            const client = clients.find(c => c.id === currentClientId);
+            client.credentials[activeAgencyKey] = {
+                u: document.getElementById('edit-user').value,
+                p: document.getElementById('edit-pass').value
+            };
+            saveData();
+            closeModal();
+            openClientFolder(currentClientId); // Refresh folder view
+        }
+
+        function launchAgency(agencyId) {
+            const client = clients.find(c => c.id === currentClientId);
+            const agency = agencyConfig.find(a => a.id === agencyId);
+            const creds = client.credentials[agencyId];
+
+            if (!creds || !creds.p) return alert("Save a password first!");
+
+            // Copy password to clipboard and open link in new tab
+            navigator.clipboard.writeText(creds.p).then(() => {
+                alert("Password copied for " + client.name + ". Opening " + agency.name + "...");
+                window.open(agency.url, '_blank');
+            });
         }
 
         function goHome() {
@@ -174,9 +252,8 @@
             document.getElementById('folder-view').style.display = 'none';
         }
 
-        function syncStorage() {
-            localStorage.setItem('v2_clients', JSON.stringify(clients));
-        }
+        function closeModal() { document.getElementById('cred-modal').style.display = 'none'; }
+        function saveData() { localStorage.setItem('v2_clients', JSON.stringify(clients)); }
     </script>
 </body>
 </html>
