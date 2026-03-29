@@ -1,7 +1,24 @@
-{
-    "last_sync": "Initializing...",
-    "system_status": "Waiting for Engine",
-    "tax_deadlines": [
-        {"agency": "System", "deadline": "Syncing Data..."}
-    ]
-}
+import json
+from datetime import datetime
+
+def update_vault():
+    # Data to be shared with the website banner
+    vault_data = {
+        "last_sync": datetime.now().strftime("%d %b %Y, %H:%M"),
+        "tax_deadlines": [
+            {"agency": "KRA VAT", "deadline": "20th"},
+            {"agency": "PAYE", "deadline": "9th"},
+            {"agency": "Housing Levy", "deadline": "9th"},
+            {"agency": "NSSF", "deadline": "9th"},
+            {"agency": "SHIF", "deadline": "9th"}
+        ]
+    }
+
+    # Overwrite the bridge file
+    with open('automations.json', 'w') as f:
+        json.dump(vault_data, f, indent=4)
+    
+    print(f"✅ Python Sync Complete at {vault_data['last_sync']}")
+
+if __name__ == "__main__":
+    update_vault()
