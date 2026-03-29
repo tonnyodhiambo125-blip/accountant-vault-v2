@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maurice's Professional Vault</title>
+    <title>Maurice's Secure Vault</title>
     <style>
         :root { --primary: #0747a6; --accent: #ffd700; --bg: #f4f7f9; --text: #333; --success: #36b37e; }
         body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
 
-        /* --- 1. PREMIUM LOGIN PAGE (GLASSMORPHISM) --- */
+        /* --- 1. PREMIUM LOGIN PAGE --- */
         #lock-screen { 
             position: fixed; inset: 0; 
             background: linear-gradient(135deg, #0747a6 0%, #001a33 100%); 
@@ -41,22 +41,19 @@
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .settings-gear { cursor: pointer; font-size: 20px; transition: 0.3s; opacity: 0.8; }
+        .settings-gear:hover { transform: rotate(90deg); opacity: 1; }
+
         /* CLIENT FOLDERS */
         .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .client-card { background: white; padding: 30px 20px; border-radius: 18px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; }
         .client-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
-        .delete-btn { position: absolute; top: 12px; right: 15px; color: #ccc; cursor: pointer; font-size: 20px; transition: 0.2s; }
+        .delete-btn { position: absolute; top: 12px; right: 15px; color: #ccc; cursor: pointer; font-size: 20px; }
         .delete-btn:hover { color: #ff5630; }
 
-        /* AGENCY PORTAL CARDS */
-        .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
-        .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; transition: 0.2s; }
-        .agency-card:hover { border-color: #cbd5e0; }
-        .agency-card strong { font-size: 15px; color: var(--primary); }
-        .agency-card small { color: #718096; font-size: 12px; margin: 5px 0; display: block; }
-
-        /* MODAL */
-        #cred-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        /* MODALS */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
 
@@ -64,6 +61,12 @@
         .btn-blue { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
         .btn-outline { background: #f8fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 10px; border-radius: 8px; cursor: pointer; margin-top: 8px; width: 100%; font-size: 13px; font-weight: 600; transition: 0.2s; }
         .btn-outline:hover { background: #edf2f7; border-color: var(--primary); color: var(--primary); }
+
+        /* AGENCY PORTAL CARDS */
+        .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        .agency-card strong { font-size: 15px; color: var(--primary); }
+        .agency-card small { color: #718096; font-size: 12px; margin: 5px 0; display: block; }
     </style>
 </head>
 <body>
@@ -73,7 +76,7 @@
             <div style="font-size: 55px;">🛡️</div>
             <h2>Secure Vault</h2>
             <p>Welcome back, Maurice</p>
-            <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="4" autocomplete="off" autofocus>
+            <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="8" autocomplete="off" autofocus>
             <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
             <div style="margin-top: 30px; font-size: 10px; color: #cbd5e0; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">🔒 AES-256 Local Encryption</div>
         </div>
@@ -82,7 +85,10 @@
     <div id="main-app" style="display:none">
         <header>
             <h3 style="margin:0; letter-spacing: 1px;">👋 HELLO MAURICE</h3>
-            <button onclick="logout()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
+            <div class="header-controls">
+                <span class="settings-gear" onclick="openSettings()">⚙️</span>
+                <button onclick="logout()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
+            </div>
         </header>
 
         <div class="container">
@@ -105,21 +111,40 @@
         </div>
     </div>
 
-    <div id="cred-modal">
+    <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
-            <h4 id="modal-title" style="margin:0; color: var(--primary); font-size: 18px;">Edit Credentials</h4>
+            <h4 style="margin:0; color: var(--primary);">Security Settings</h4>
+            <p style="font-size: 12px; color: #777; margin: 5px 0 20px 0;">Change your Master PIN</p>
+            <input type="password" id="old-pin" placeholder="Current PIN">
+            <input type="password" id="new-pin" placeholder="New PIN (e.g. 5678)">
+            <input type="password" id="confirm-pin" placeholder="Confirm New PIN">
+            <div style="display:flex; gap:10px; margin-top: 15px;">
+                <button class="btn-blue" onclick="changePin()">Update PIN</button>
+                <button onclick="closeModal('settings-modal')" style="border:none; background:none; cursor:pointer; width:100%; color: #888;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cred-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h4 id="modal-title" style="margin:0; color: var(--primary);">Edit Credentials</h4>
             <p id="modal-subtitle" style="font-size: 12px; color: #777; margin: 5px 0 15px 0;"></p>
             <input type="text" id="edit-user" placeholder="Username / ID Number">
             <input type="password" id="edit-pass" placeholder="Password / PIN">
             <div style="display:flex; gap:10px; margin-top: 10px;">
                 <button class="btn-blue" onclick="saveCreds()">Save to Vault</button>
-                <button onclick="closeModal()" style="border:none; background:none; cursor:pointer; width:100%; color: #888; font-weight: 600;">Cancel</button>
+                <button onclick="closeModal('cred-modal')" style="border:none; background:none; cursor:pointer; width:100%; color: #888;">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        const MASTER_PIN = "1234";
+        // 1. DYNAMIC PIN LOGIC
+        // This ensures the PIN is stored in the browser, not the code.
+        if (!localStorage.getItem('vault_master_pin')) {
+            localStorage.setItem('vault_master_pin', '1234'); // Default on first visit
+        }
+
         const agencyConfig = [
             { id: 'itax', name: 'KRA iTax Portal', url: 'https://itax.kra.go.ke/' },
             { id: 'egms', name: 'KRA EGMS', url: 'https://egms.kra.go.ke/' },
@@ -159,8 +184,9 @@
             const input = document.getElementById('pin-input');
             const box = document.getElementById('lock-box-container');
             const screen = document.getElementById('lock-screen');
+            const storedPin = localStorage.getItem('vault_master_pin');
             
-            if (input.value === MASTER_PIN) {
+            if (input.value === storedPin) {
                 localStorage.setItem('vault_v2_auth', 'true');
                 screen.style.opacity = '0';
                 setTimeout(() => {
@@ -175,11 +201,30 @@
             }
         }
 
+        // SETTINGS LOGIC
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+
+        function changePin() {
+            const oldPin = document.getElementById('old-pin').value;
+            const newPin = document.getElementById('new-pin').value;
+            const confirmPin = document.getElementById('confirm-pin').value;
+            const currentStored = localStorage.getItem('vault_master_pin');
+
+            if (oldPin !== currentStored) return alert("Current PIN is incorrect!");
+            if (newPin.length < 4) return alert("New PIN must be at least 4 digits.");
+            if (newPin !== confirmPin) return alert("New PINs do not match!");
+
+            localStorage.setItem('vault_master_pin', newPin);
+            alert("PIN Updated Successfully! Please log in again.");
+            logout();
+        }
+
         function logout() {
             localStorage.removeItem('vault_v2_auth');
             location.reload();
         }
 
+        // CLIENT & FOLDER LOGIC (SAME AS BEFORE)
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
@@ -240,17 +285,13 @@
             document.getElementById('edit-user').value = data.u;
             document.getElementById('edit-pass').value = data.p;
             document.getElementById('cred-modal').style.display = 'flex';
-            document.getElementById('edit-user').focus();
         }
 
         function saveCreds() {
             const client = clients.find(c => c.id === activeClientId);
-            client.creds[activeAgencyId] = {
-                u: document.getElementById('edit-user').value,
-                p: document.getElementById('edit-pass').value
-            };
+            client.creds[activeAgencyId] = { u: document.getElementById('edit-user').value, p: document.getElementById('edit-pass').value };
             saveData();
-            closeModal();
+            closeModal('cred-modal');
             openFolder(activeClientId);
         }
 
@@ -258,20 +299,12 @@
             const client = clients.find(c => c.id === activeClientId);
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
-            if (!data || !data.p) return alert("Please set credentials first.");
-            
-            navigator.clipboard.writeText(data.p).then(() => {
-                alert("PIN Copied! Opening " + agency.name);
-                window.open(agency.url, '_blank');
-            });
+            if (!data || !data.p) return alert("Set PIN first.");
+            navigator.clipboard.writeText(data.p).then(() => { alert("PIN Copied!"); window.open(agency.url, '_blank'); });
         }
 
-        function goHome() {
-            document.getElementById('home-view').style.display = 'block';
-            document.getElementById('folder-view').style.display = 'none';
-        }
-
-        function closeModal() { document.getElementById('cred-modal').style.display = 'none'; }
+        function goHome() { document.getElementById('home-view').style.display = 'block'; document.getElementById('folder-view').style.display = 'none'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveData() { localStorage.setItem('vault_v2_data', JSON.stringify(clients)); }
         function saveAndRender() { saveData(); renderHome(); }
 
