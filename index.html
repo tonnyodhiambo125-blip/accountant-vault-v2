@@ -6,70 +6,100 @@
     <title>Accountant Vault Pro v2</title>
     <style>
         :root { --primary: #0747a6; --accent: #ffd700; --bg: #f4f7f9; --text: #333; --success: #36b37e; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); }
-        
-        /* 1. LOCK SCREEN STYLES */
-        #lock-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 10000; }
-        .lock-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        .lock-box input { width: 100%; padding: 15px; margin: 20px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 24px; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
 
-        /* 2. DASHBOARD LAYOUT */
+        /* --- 1. PREMIUM LOGIN PAGE (GLASSMORPHISM) --- */
+        #lock-screen { 
+            position: fixed; inset: 0; 
+            background: linear-gradient(135deg, #0747a6 0%, #001a33 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 10000; transition: opacity 0.4s ease;
+        }
+        .lock-box { 
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
+            padding: 50px 40px; border-radius: 28px; text-align: center; 
+            width: 360px; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .lock-box h2 { color: #0747a6; margin: 15px 0 5px 0; font-size: 26px; font-weight: 800; }
+        .pin-input-field { 
+            width: 100%; padding: 18px; border: 2px solid #edf2f7; border-radius: 14px; 
+            text-align: center; font-size: 32px; letter-spacing: 12px;
+            background: #f8fafc; color: #0747a6; box-sizing: border-box; transition: 0.3s;
+        }
+        .pin-input-field:focus { border-color: #0747a6; outline: none; background: white; box-shadow: 0 0 15px rgba(7, 71, 166, 0.15); }
+        .btn-login {
+            background: #0747a6; color: white; border: none; padding: 18px; border-radius: 14px; 
+            width: 100%; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(7, 71, 166, 0.3); transition: 0.2s;
+        }
+        .btn-login:hover { background: #003380; transform: translateY(-1px); }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        .shake-effect { animation: shake 0.4s ease-in-out; }
+
+        /* --- 2. DASHBOARD LAYOUT --- */
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         
         /* CLIENT FOLDERS */
-        .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .client-card { background: white; padding: 25px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; position: relative; }
-        .client-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .delete-btn { position: absolute; top: 8px; right: 10px; color: #ccc; cursor: pointer; font-size: 18px; }
+        .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .client-card { background: white; padding: 30px 20px; border-radius: 18px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; }
+        .client-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .delete-btn { position: absolute; top: 12px; right: 15px; color: #ccc; cursor: pointer; font-size: 20px; transition: 0.2s; }
         .delete-btn:hover { color: #ff5630; }
 
-        /* AGENCY PORTAL CARDS (Optimized for 15 items) */
-        .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 20px; }
-        .agency-card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
-        .agency-card strong { font-size: 14px; color: var(--primary); }
-        .agency-card small { color: #888; font-size: 11px; margin: 4px 0; }
+        /* AGENCY PORTAL CARDS */
+        .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; transition: 0.2s; }
+        .agency-card:hover { border-color: #cbd5e0; }
+        .agency-card strong { font-size: 15px; color: var(--primary); }
+        .agency-card small { color: #718096; font-size: 12px; margin: 5px 0; display: block; }
 
         /* CREDENTIAL MODAL */
-        #cred-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 340px; }
-        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        #cred-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
 
         /* BUTTONS */
-        .btn-blue { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-outline { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 5px; width: 100%; font-size: 12px; }
-        .btn-outline:hover { background: #f0f7ff; }
+        .btn-blue { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
+        .btn-outline { background: #f8fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 10px; border-radius: 8px; cursor: pointer; margin-top: 8px; width: 100%; font-size: 13px; font-weight: 600; transition: 0.2s; }
+        .btn-outline:hover { background: #edf2f7; border-color: var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="lock-screen">
-        <div class="lock-box">
-            <h2 style="margin:0;">Secure Vault</h2>
-            <p style="color:#666; font-size:14px;">Authorized Accountant Access</p>
-            <input type="password" id="pin-input" placeholder="••••" maxlength="4">
-            <button class="btn-blue" onclick="attemptUnlock()">Unlock Dashboard</button>
+        <div class="lock-box" id="lock-box-container">
+            <div style="font-size: 55px;">🛡️</div>
+            <h2>Secure Vault</h2>
+            <p>Accounting Professional Access Only</p>
+            <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="4" autocomplete="off" autofocus>
+            <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
+            <div style="margin-top: 30px; font-size: 10px; color: #cbd5e0; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">🔒 AES-256 Local Encryption</div>
         </div>
     </div>
 
     <div id="main-app" style="display:none">
         <header>
-            <h3 style="margin:0;">🇰🇪 Professional Vault</h3>
-            <button onclick="logout()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Logout</button>
+            <h3 style="margin:0; letter-spacing: 1px;">🇰🇪 PROFESSIONAL VAULT</h3>
+            <button onclick="logout()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
         </header>
 
         <div class="container">
             <div id="home-view">
-                <div style="display:flex; gap:10px; margin-bottom:25px;">
-                    <input type="text" id="newClientName" placeholder="Enter Client or Company Name..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;">
-                    <button onclick="addClient()" class="btn-blue" style="width:140px;">+ New Folder</button>
+                <div style="display:flex; gap:12px; margin-bottom:30px;">
+                    <input type="text" id="newClientName" placeholder="Enter Client or Company Name..." style="flex:1; padding:15px; border-radius:12px; border:1px solid #ddd; font-size: 16px;">
+                    <button onclick="addClient()" class="btn-blue" style="width:160px;">+ Create Folder</button>
                 </div>
                 <div class="client-grid" id="clientGrid"></div>
             </div>
 
             <div id="folder-view" style="display:none">
-                <button onclick="goHome()" style="background:#eee; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; margin-bottom:15px;">⬅ Back to Client List</button>
-                <h2 id="activeClientName" style="color:var(--primary); margin:0;"></h2>
+                <button onclick="goHome()" style="background:#eee; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; margin-bottom:20px; font-weight: 600; color: #555;">⬅ Back to Clients</button>
+                <div style="background: white; padding: 20px; border-radius: 15px; border-left: 6px solid var(--primary); margin-bottom: 25px;">
+                    <h2 id="activeClientName" style="color:var(--primary); margin:0;"></h2>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #777;">Select a portal below to launch and copy credentials.</p>
+                </div>
                 <div class="agency-list" id="agencyGrid"></div>
             </div>
         </div>
@@ -77,18 +107,18 @@
 
     <div id="cred-modal">
         <div class="modal-content">
-            <h4 id="modal-title" style="margin:0;">Edit Credentials</h4>
+            <h4 id="modal-title" style="margin:0; color: var(--primary); font-size: 18px;">Edit Credentials</h4>
+            <p id="modal-subtitle" style="font-size: 12px; color: #777; margin: 5px 0 15px 0;"></p>
             <input type="text" id="edit-user" placeholder="Username / ID Number">
             <input type="password" id="edit-pass" placeholder="Password / PIN">
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; margin-top: 10px;">
                 <button class="btn-blue" onclick="saveCreds()">Save to Vault</button>
-                <button onclick="closeModal()" style="border:none; background:none; cursor:pointer; width:100%;">Cancel</button>
+                <button onclick="closeModal()" style="border:none; background:none; cursor:pointer; width:100%; color: #888; font-weight: 600;">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. CONFIGURATION: ALL PORTALS DEFINED HERE
         const MASTER_PIN = "1234";
         const agencyConfig = [
             { id: 'itax', name: 'KRA iTax Portal', url: 'https://itax.kra.go.ke/' },
@@ -107,12 +137,11 @@
             { id: 'qbo', name: 'QuickBooks Online', url: 'https://qbo.intuit.com/' }
         ];
 
-        // 2. DATA MANAGEMENT (LocalStorage)
         let clients = JSON.parse(localStorage.getItem('vault_v2_data')) || [];
         let activeClientId = null;
         let activeAgencyId = null;
 
-        // 3. AUTHENTICATION LOGIC
+        // AUTHENTICATION & INITIALIZATION
         function init() {
             if (localStorage.getItem('vault_v2_auth') === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -121,13 +150,30 @@
             }
         }
 
+        // Enter key support for login
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('lock-screen').style.display !== 'none') {
+                attemptUnlock();
+            }
+        });
+
         function attemptUnlock() {
-            if (document.getElementById('pin-input').value === MASTER_PIN) {
+            const input = document.getElementById('pin-input');
+            const box = document.getElementById('lock-box-container');
+            const screen = document.getElementById('lock-screen');
+            
+            if (input.value === MASTER_PIN) {
                 localStorage.setItem('vault_v2_auth', 'true');
-                init();
-            } else { 
-                alert("Incorrect PIN"); 
-                document.getElementById('pin-input').value = "";
+                screen.style.opacity = '0';
+                setTimeout(() => {
+                    screen.style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    renderHome();
+                }, 400);
+            } else {
+                box.classList.add('shake-effect');
+                input.value = "";
+                setTimeout(() => { box.classList.remove('shake-effect'); input.focus(); }, 500);
             }
         }
 
@@ -136,7 +182,7 @@
             location.reload();
         }
 
-        // 4. CLIENT FOLDER ACTIONS
+        // FOLDER LOGIC
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
@@ -150,14 +196,14 @@
             grid.innerHTML = clients.map(c => `
                 <div class="client-card" onclick="openFolder(${c.id})">
                     <span class="delete-btn" onclick="event.stopPropagation(); deleteClient(${c.id})">×</span>
-                    <div style="font-size:40px;">📁</div>
-                    <strong>${c.name}</strong>
+                    <div style="font-size:45px; margin-bottom: 10px;">📁</div>
+                    <strong style="font-size: 16px;">${c.name}</strong>
                 </div>
             `).join('');
         }
 
         function deleteClient(id) {
-            if (confirm("Permanently delete this client folder?")) {
+            if (confirm("Permanently delete this client and all stored PINs?")) {
                 clients = clients.filter(c => c.id !== id);
                 saveAndRender();
             }
@@ -176,27 +222,28 @@
                 return `
                     <div class="agency-card">
                         <div>
-                            <strong>${a.name}</strong><br>
+                            <strong>${a.name}</strong>
                             <small>User ID: ${data.u}</small>
                         </div>
                         <div>
                             <button class="btn-outline" onclick="launch('${a.id}')">Launch & Copy PIN</button>
-                            <button class="btn-outline" style="border-color:#ccc; color:#666" onclick="openModal('${a.id}')">Edit Login</button>
+                            <button class="btn-outline" style="background: none; border: none; font-size: 11px; color: #888;" onclick="openModal('${a.id}')">Edit Credentials</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // 5. CREDENTIAL ACTIONS
         function openModal(agencyId) {
             activeAgencyId = agencyId;
             const client = clients.find(c => c.id === activeClientId);
+            const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId] || { u: '', p: '' };
-            document.getElementById('modal-title').innerText = "Edit " + agencyId.toUpperCase();
+            document.getElementById('modal-subtitle').innerText = "Portal: " + agency.name;
             document.getElementById('edit-user').value = data.u;
             document.getElementById('edit-pass').value = data.p;
             document.getElementById('cred-modal').style.display = 'flex';
+            document.getElementById('edit-user').focus();
         }
 
         function saveCreds() {
@@ -214,10 +261,10 @@
             const client = clients.find(c => c.id === activeClientId);
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
-            if (!data || !data.p) return alert("Please save a password/PIN for this agency first!");
+            if (!data || !data.p) return alert("Please set a password/PIN for " + agency.name + " first.");
             
             navigator.clipboard.writeText(data.p).then(() => {
-                alert("PIN copied to clipboard! Redirecting to " + agency.name);
+                alert("PIN Copied! Opening portal...");
                 window.open(agency.url, '_blank');
             });
         }
