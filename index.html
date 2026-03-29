@@ -7,7 +7,7 @@
     <style>
         /* --- BRANDING & THEME --- */
         :root { 
-            --primary: #0747a6; /* Professional Deep Blue */
+            --primary: #0747a6; /* Deep Blue for Trust */
             --accent: #ffd700;  /* Kenyan Gold Accent */
             --bg: #f4f7f9; 
             --text: #333; 
@@ -18,9 +18,10 @@
             background: var(--bg); 
             margin: 0; 
             color: var(--text); 
+            overflow-x: hidden;
         }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- LOGIN SCREEN STYLING --- */
         #lock-screen { 
             position: fixed; inset: 0; 
             background: linear-gradient(135deg, #0747a6 0%, #001a33 100%); 
@@ -39,29 +40,40 @@
         .btn-login {
             background: #0747a6; color: white; border: none; padding: 18px; border-radius: 14px; 
             width: 100%; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 25px;
+            transition: 0.3s;
         }
+        .btn-login:hover { background: #003380; transform: translateY(-2px); }
+        
+        /* The "Forgot PIN" link style */
         .forgot-link {
             display: inline-block; margin-top: 20px; color: #0747a6; text-decoration: none;
             font-size: 11px; font-weight: bold; background: #f0f4f8; padding: 8px 12px; border-radius: 6px;
         }
 
-        /* --- DASHBOARD --- */
+        /* --- MAIN DASHBOARD STYLING --- */
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        
+        /* Client Folder Grid */
         .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .client-card { background: white; padding: 30px 20px; border-radius: 18px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; }
-        .client-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .client-card { 
+            background: white; padding: 30px 20px; border-radius: 18px; text-align: center; 
+            cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; 
+        }
+        .client-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .delete-btn { position: absolute; top: 12px; right: 15px; color: #ccc; cursor: pointer; font-size: 20px; }
+        .delete-btn:hover { color: #ff5630; }
 
-        /* --- PORTAL CARDS --- */
+        /* Agency Portal Cards */
         .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
         .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* MODALS */
+        /* MODALS (Popups) */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; }
-        .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         
+        /* Incorrect PIN Shake Animation */
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
         .shake-effect { animation: shake 0.4s ease-in-out; }
     </style>
@@ -71,12 +83,14 @@
     <div id="lock-screen">
         <div class="lock-box" id="lock-box-container">
             <div style="font-size: 55px;">🛡️</div>
-            <h2 style="color: #0747a6;">Secure Vault</h2>
-            <p style="color:#666;">Welcome back, Maurice</p>
+            <h2 style="color: #0747a6; margin-top: 10px;">Secure Vault</h2>
+            <p style="color:#666; margin-bottom: 25px;">Welcome back, Maurice</p>
+            
             <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="8" autofocus>
+            
             <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
             <br>
-            <a href="#" class="forgot-link" onclick="contactDevForRecovery()">FORGOT PIN? REQUEST RECOVERY</a>
+            <a href="#" class="forgot-link" onclick="contactDevForRecovery()">FORGOT PIN? REQUEST RECOVERY VIA GMAIL</a>
         </div>
     </div>
 
@@ -84,7 +98,7 @@
         <header>
             <h3 style="margin:0; letter-spacing: 1px;">👋 HELLO MAURICE</h3>
             <div style="display:flex; align-items:center; gap:20px;">
-                <span title="Settings" style="cursor:pointer; font-size:20px;" onclick="openSettings()">⚙️</span>
+                <span title="Security Settings" style="cursor:pointer; font-size:20px;" onclick="openSettings()">⚙️</span>
                 <button onclick="logout()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:600;">Logout</button>
             </div>
         </header>
@@ -92,7 +106,7 @@
         <div class="container">
             <div id="recovery-notice" style="display:none; background:#fff3cd; padding:20px; border-radius:15px; border-left:6px solid #ffca2c; margin-bottom:30px; text-align:center;">
                 <strong style="color:#856404;">⚠️ SECURITY ACTION REQUIRED</strong>
-                <p style="margin:10px 0;">Maurice, write this <strong>Recovery Key</strong> in your diary. It resets your vault if you forget the PIN:</p>
+                <p style="margin:10px 0;">Maurice, save this <strong>Recovery Key</strong> in your diary. It resets your vault if you forget the PIN:</p>
                 <code id="display-recovery-key" style="background:#fff; padding:5px 10px; border-radius:5px; font-size:18px; border:1px solid #ffeeba; font-weight:bold; color: #0747a6;"></code>
                 <div style="margin-top: 15px;">
                     <button onclick="dismissNotice()" style="background:#856404; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">I Have Saved It</button>
@@ -119,7 +133,7 @@
 
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
-            <h4>Security Settings</h4>
+            <h4 style="margin:0; color: var(--primary);">Security Settings</h4>
             <input type="password" id="old-pin" placeholder="Current PIN">
             <input type="password" id="new-pin" placeholder="New PIN">
             <input type="password" id="confirm-pin" placeholder="Confirm New PIN">
@@ -140,19 +154,19 @@
     </div>
 
     <script>
-        /* --- SYSTEM SETUP --- */
+        /* --- SYSTEM INITIALIZATION --- */
         
         // Default login is 1234
         if (!localStorage.getItem('vault_master_pin')) localStorage.setItem('vault_master_pin', '1234');
         
-        // Generate Browser-Unique Key
+        // Generate unique recovery key for the specific browser
         if (!localStorage.getItem('vault_recovery_key')) {
             const rk = "VAULT-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
             localStorage.setItem('vault_recovery_key', rk);
             localStorage.setItem('recovery_notice_shown', 'false');
         }
 
-        // 14 Kenyan Portals Configuration
+        // Full Configuration of Kenyan Administrative Portals
         const agencyConfig = [
             { id: 'itax', name: 'KRA iTax Portal', url: 'https://itax.kra.go.ke/' },
             { id: 'egms', name: 'KRA EGMS', url: 'https://egms.kra.go.ke/' },
@@ -174,7 +188,7 @@
         let activeClientId = null;
         let activeAgencyId = null;
 
-        // Run application on load
+        // On Load Logic
         function init() {
             if (localStorage.getItem('vault_v2_auth') === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -187,7 +201,7 @@
             }
         }
 
-        /* --- AUTHENTICATION & RECOVERY --- */
+        /* --- AUTHENTICATION & GMAIL RECOVERY --- */
 
         function attemptUnlock() {
             const input = document.getElementById('pin-input');
@@ -201,28 +215,24 @@
             }
         }
 
-        // The "Redirect" Function: Prepares a draft to Tonny
+        // REDIRECT TO GMAIL: Direct link to Gmail Compose
         function contactDevForRecovery() {
             const key = localStorage.getItem('vault_recovery_key');
             const devEmail = "tonnyodhiambo125@gmail.com"; 
-            const subject = encodeURIComponent("Vault Recovery Request - Maurice");
-            const body = encodeURIComponent(
-                "Hi Tonny,\n\n" +
-                "I have forgotten my Vault PIN and need my recovery key.\n\n" +
-                "SYSTEM ID: " + key + "\n\n" +
-                "Please send me the unlock code. Thanks!"
-            );
-            
-            // Redirect to Mail App
-            window.location.href = "mailto:" + devEmail + "?subject=" + subject + "&body=" + body;
+            const subject = "Vault Recovery Request - Maurice";
+            const body = "Hi Tonny,\n\nI have forgotten my Vault PIN and need my recovery key.\n\nSYSTEM ID: " + key + "\n\nPlease send me the unlock code. Thanks!";
 
-            // Fail-safe alert
-            setTimeout(() => {
-                alert("If your mail didn't open, please email tonnyodhiambo125@gmail.com with your ID: " + key);
-            }, 1000);
+            // Direct link to Gmail's 'Compose' window
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${devEmail}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            // Open in a new tab
+            window.open(gmailUrl, '_blank');
+
+            // Backup Alert
+            alert("Opening Gmail... If the tab didn't open, please email " + devEmail + " with ID: " + key);
         }
 
-        /* --- CORE FUNCTIONS --- */
+        /* --- CORE VAULT FUNCTIONS --- */
 
         function renderHome() {
             const grid = document.getElementById('clientGrid');
@@ -230,7 +240,7 @@
                 <div class="client-card" onclick="openFolder(${c.id})">
                     <span class="delete-btn" onclick="event.stopPropagation(); deleteClient(${c.id})">×</span>
                     <div style="font-size:45px; margin-bottom: 10px;">📁</div>
-                    <strong>${c.name}</strong>
+                    <strong style="font-size: 16px;">${c.name}</strong>
                 </div>
             `).join('');
         }
@@ -245,9 +255,12 @@
             grid.innerHTML = agencyConfig.map(a => {
                 const data = client.creds[a.id] || { u: 'Not Set', p: '' };
                 return `<div class="agency-card">
-                    <div><strong style="color:var(--primary)">${a.name}</strong><br><small>User: ${data.u}</small></div>
+                    <div>
+                        <strong style="color:var(--primary)">${a.name}</strong><br>
+                        <small style="color:#777">User: ${data.u}</small>
+                    </div>
                     <div style="margin-top:10px;">
-                        <button style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:8px; cursor:pointer;" onclick="launch('${a.id}')">Launch & Copy</button>
+                        <button style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; font-size:12px;" onclick="launch('${a.id}')">Launch & Copy</button>
                         <button style="background:none; border:none; color:#999; width:100%; margin-top:5px; cursor:pointer; font-size:11px;" onclick="openModal('${a.id}')">Edit credentials</button>
                     </div>
                 </div>`;
@@ -259,14 +272,18 @@
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
             if (!data || !data.p) return alert("Please set a password first.");
-            navigator.clipboard.writeText(data.p).then(() => { alert("PIN Copied!"); window.open(agency.url, '_blank'); });
+            navigator.clipboard.writeText(data.p).then(() => { 
+                alert("PIN Copied!"); 
+                window.open(agency.url, '_blank'); 
+            });
         }
 
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
             clients.push({ id: Date.now(), name, creds: {} });
-            saveData(); renderHome();
+            saveData(); 
+            renderHome();
             document.getElementById('newClientName').value = '';
         }
 
@@ -282,7 +299,7 @@
             activeAgencyId = aId; 
             const c = clients.find(cl => cl.id === activeClientId);
             const data = c.creds[aId] || { u: '', p: '' };
-            document.getElementById('modal-subtitle').innerText = agencyConfig.find(a => a.id === aId).name;
+            document.getElementById('modal-subtitle').innerText = "Portal: " + agencyConfig.find(a => a.id === aId).name;
             document.getElementById('edit-user').value = data.u; 
             document.getElementById('edit-pass').value = data.p;
             document.getElementById('cred-modal').style.display = 'flex'; 
@@ -299,9 +316,9 @@
             const n1 = document.getElementById('new-pin').value;
             const n2 = document.getElementById('confirm-pin').value;
             if (old !== localStorage.getItem('vault_master_pin')) return alert("Current PIN incorrect.");
-            if (n1 !== n2 || n1.length < 4) return alert("New PINs mismatch or too short.");
+            if (n1 !== n2 || n1.length < 4) return alert("New PINs do not match or are too short.");
             localStorage.setItem('vault_master_pin', n1);
-            alert("PIN Updated!"); logout();
+            alert("PIN Successfully Updated!"); logout();
         }
 
         init();
