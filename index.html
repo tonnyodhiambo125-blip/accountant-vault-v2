@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accountant Vault Pro v2</title>
+    <title>Maurice's Professional Vault</title>
     <style>
         :root { --primary: #0747a6; --accent: #ffd700; --bg: #f4f7f9; --text: #333; --success: #36b37e; }
         body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
@@ -55,7 +55,7 @@
         .agency-card strong { font-size: 15px; color: var(--primary); }
         .agency-card small { color: #718096; font-size: 12px; margin: 5px 0; display: block; }
 
-        /* CREDENTIAL MODAL */
+        /* MODAL */
         #cred-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
@@ -72,7 +72,7 @@
         <div class="lock-box" id="lock-box-container">
             <div style="font-size: 55px;">🛡️</div>
             <h2>Secure Vault</h2>
-            <p>Accounting Professional Access Only</p>
+            <p>Welcome back, Maurice</p>
             <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="4" autocomplete="off" autofocus>
             <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
             <div style="margin-top: 30px; font-size: 10px; color: #cbd5e0; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">🔒 AES-256 Local Encryption</div>
@@ -81,7 +81,7 @@
 
     <div id="main-app" style="display:none">
         <header>
-            <h3 style="margin:0; letter-spacing: 1px;">🇰🇪 PROFESSIONAL VAULT</h3>
+            <h3 style="margin:0; letter-spacing: 1px;">👋 HELLO MAURICE</h3>
             <button onclick="logout()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
         </header>
 
@@ -141,7 +141,6 @@
         let activeClientId = null;
         let activeAgencyId = null;
 
-        // AUTHENTICATION & INITIALIZATION
         function init() {
             if (localStorage.getItem('vault_v2_auth') === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -150,7 +149,6 @@
             }
         }
 
-        // Enter key support for login
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.getElementById('lock-screen').style.display !== 'none') {
                 attemptUnlock();
@@ -182,7 +180,6 @@
             location.reload();
         }
 
-        // FOLDER LOGIC
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
@@ -203,7 +200,7 @@
         }
 
         function deleteClient(id) {
-            if (confirm("Permanently delete this client and all stored PINs?")) {
+            if (confirm("Delete client folder?")) {
                 clients = clients.filter(c => c.id !== id);
                 saveAndRender();
             }
@@ -261,10 +258,10 @@
             const client = clients.find(c => c.id === activeClientId);
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
-            if (!data || !data.p) return alert("Please set a password/PIN for " + agency.name + " first.");
+            if (!data || !data.p) return alert("Please set credentials first.");
             
             navigator.clipboard.writeText(data.p).then(() => {
-                alert("PIN Copied! Opening portal...");
+                alert("PIN Copied! Opening " + agency.name);
                 window.open(agency.url, '_blank');
             });
         }
