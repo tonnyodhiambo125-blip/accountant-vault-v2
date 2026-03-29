@@ -17,9 +17,6 @@
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         
-        /* PYTHON SYNC BANNER */
-        #python-banner { background: #e3f2fd; padding: 12px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--primary); font-size: 13px; display: none; }
-        
         /* CLIENT FOLDERS */
         .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
         .client-card { background: white; padding: 25px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; position: relative; }
@@ -49,7 +46,7 @@
     <div id="lock-screen">
         <div class="lock-box">
             <h2 style="margin:0;">Secure Vault</h2>
-            <p style="color:#666; font-size:14px;">Authorized Accountant Only</p>
+            <p style="color:#666; font-size:14px;">Authorized Accountant Access</p>
             <input type="password" id="pin-input" placeholder="••••" maxlength="4">
             <button class="btn-blue" onclick="attemptUnlock()">Unlock Dashboard</button>
         </div>
@@ -57,26 +54,21 @@
 
     <div id="main-app" style="display:none">
         <header>
-            <div>
-                <h3 style="margin:0;">🇰🇪 Professional Vault</h3>
-                <small id="sync-status">Connecting to Python Engine...</small>
-            </div>
+            <h3 style="margin:0;">🇰🇪 Professional Vault</h3>
             <button onclick="logout()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Logout</button>
         </header>
 
         <div class="container">
-            <div id="python-banner"></div>
-
             <div id="home-view">
                 <div style="display:flex; gap:10px; margin-bottom:25px;">
-                    <input type="text" id="newClientName" placeholder="Client Name..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;">
-                    <button onclick="addClient()" class="btn-blue" style="width:120px;">+ Folder</button>
+                    <input type="text" id="newClientName" placeholder="Enter Client or Company Name..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;">
+                    <button onclick="addClient()" class="btn-blue" style="width:140px;">+ New Folder</button>
                 </div>
                 <div class="client-grid" id="clientGrid"></div>
             </div>
 
             <div id="folder-view" style="display:none">
-                <button onclick="goHome()" style="background:#eee; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; margin-bottom:15px;">⬅ Back</button>
+                <button onclick="goHome()" style="background:#eee; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; margin-bottom:15px;">⬅ Back to Client List</button>
                 <h2 id="activeClientName" style="color:var(--primary); margin:0;"></h2>
                 <div class="agency-list" id="agencyGrid"></div>
             </div>
@@ -85,18 +77,18 @@
 
     <div id="cred-modal">
         <div class="modal-content">
-            <h4 id="modal-title" style="margin:0;">Edit Login</h4>
-            <input type="text" id="edit-user" placeholder="Username / ID">
+            <h4 id="modal-title" style="margin:0;">Edit Credentials</h4>
+            <input type="text" id="edit-user" placeholder="Username / ID Number">
             <input type="password" id="edit-pass" placeholder="Password / PIN">
             <div style="display:flex; gap:10px;">
-                <button class="btn-blue" onclick="saveCreds()">Save</button>
+                <button class="btn-blue" onclick="saveCreds()">Save to Vault</button>
                 <button onclick="closeModal()" style="border:none; background:none; cursor:pointer; width:100%;">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. CONFIG & PORTAL LINKS
+        // 1. CONFIGURATION: ALL PORTALS DEFINED HERE
         const MASTER_PIN = "1234";
         const agencyConfig = [
             { id: 'itax', name: 'KRA iTax Portal', url: 'https://itax.kra.go.ke/' },
@@ -115,17 +107,17 @@
             { id: 'qbo', name: 'QuickBooks Online', url: 'https://qbo.intuit.com/' }
         ];
 
+        // 2. DATA MANAGEMENT (LocalStorage)
         let clients = JSON.parse(localStorage.getItem('vault_v2_data')) || [];
         let activeClientId = null;
         let activeAgencyId = null;
 
-        // 2. AUTHENTICATION (Persistent)
+        // 3. AUTHENTICATION LOGIC
         function init() {
             if (localStorage.getItem('vault_v2_auth') === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 renderHome();
-                fetchPythonData();
             }
         }
 
@@ -133,7 +125,10 @@
             if (document.getElementById('pin-input').value === MASTER_PIN) {
                 localStorage.setItem('vault_v2_auth', 'true');
                 init();
-            } else { alert("Invalid PIN"); }
+            } else { 
+                alert("Incorrect PIN"); 
+                document.getElementById('pin-input').value = "";
+            }
         }
 
         function logout() {
@@ -141,19 +136,7 @@
             location.reload();
         }
 
-        // 3. PYTHON ENGINE SYNC
-        async function fetchPythonData() {
-            try {
-                const res = await fetch(`./automations.json?v=${Date.now()}`);
-                const data = await res.json();
-                document.getElementById('sync-status').innerText = "Last Sync: " + data.last_sync;
-                const banner = document.getElementById('python-banner');
-                banner.style.display = 'block';
-                banner.innerHTML = "📅 <b>Tax Deadlines:</b> " + data.tax_deadlines.map(d => `${d.agency}: ${d.deadline}`).join(' | ');
-            } catch (e) { console.log("Waiting for Python sync..."); }
-        }
-
-        // 4. CORE ACTIONS
+        // 4. CLIENT FOLDER ACTIONS
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
@@ -174,7 +157,7 @@
         }
 
         function deleteClient(id) {
-            if (confirm("Delete this client?")) {
+            if (confirm("Permanently delete this client folder?")) {
                 clients = clients.filter(c => c.id !== id);
                 saveAndRender();
             }
@@ -189,22 +172,23 @@
             
             const grid = document.getElementById('agencyGrid');
             grid.innerHTML = agencyConfig.map(a => {
-                const data = client.creds[a.id] || { u: 'N/A', p: '' };
+                const data = client.creds[a.id] || { u: 'Not Set', p: '' };
                 return `
                     <div class="agency-card">
                         <div>
                             <strong>${a.name}</strong><br>
-                            <small>User: ${data.u}</small>
+                            <small>User ID: ${data.u}</small>
                         </div>
                         <div>
                             <button class="btn-outline" onclick="launch('${a.id}')">Launch & Copy PIN</button>
-                            <button class="btn-outline" style="border-color:#ccc; color:#666" onclick="openModal('${a.id}')">Edit Credentials</button>
+                            <button class="btn-outline" style="border-color:#ccc; color:#666" onclick="openModal('${a.id}')">Edit Login</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
+        // 5. CREDENTIAL ACTIONS
         function openModal(agencyId) {
             activeAgencyId = agencyId;
             const client = clients.find(c => c.id === activeClientId);
@@ -230,10 +214,10 @@
             const client = clients.find(c => c.id === activeClientId);
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
-            if (!data || !data.p) return alert("Save a password first!");
+            if (!data || !data.p) return alert("Please save a password/PIN for this agency first!");
             
             navigator.clipboard.writeText(data.p).then(() => {
-                alert("Password copied for " + client.name);
+                alert("PIN copied to clipboard! Redirecting to " + agency.name);
                 window.open(agency.url, '_blank');
             });
         }
