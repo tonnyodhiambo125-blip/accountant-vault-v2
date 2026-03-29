@@ -7,10 +7,11 @@
     <style>
         /* --- BRANDING & THEME --- */
         :root { 
-            --primary: #0747a6; /* Deep Blue for Trust */
+            --primary: #0747a6; /* Professional Deep Blue */
             --accent: #ffd700;  /* Kenyan Gold Accent */
             --bg: #f4f7f9; 
             --text: #333; 
+            --recovery: #856404; /* Earthy Brown for Recovery Mode */
         }
 
         body { 
@@ -21,7 +22,7 @@
             overflow-x: hidden;
         }
 
-        /* --- LOGIN SCREEN STYLING --- */
+        /* --- LOGIN SCREEN --- */
         #lock-screen { 
             position: fixed; inset: 0; 
             background: linear-gradient(135deg, #0747a6 0%, #001a33 100%); 
@@ -29,53 +30,47 @@
             z-index: 10000; 
         }
         .lock-box { 
-            background: white; padding: 50px 40px; border-radius: 28px; 
+            background: white; padding: 45px 35px; border-radius: 28px; 
             text-align: center; width: 360px; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
         }
         .pin-input-field { 
             width: 100%; padding: 18px; border: 2px solid #edf2f7; border-radius: 14px; 
-            text-align: center; font-size: 32px; letter-spacing: 12px;
+            text-align: center; font-size: 30px; letter-spacing: 10px;
             background: #f8fafc; color: #0747a6; box-sizing: border-box;
         }
         .btn-login {
             background: #0747a6; color: white; border: none; padding: 18px; border-radius: 14px; 
-            width: 100%; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 25px;
+            width: 100%; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px;
             transition: 0.3s;
         }
         .btn-login:hover { background: #003380; transform: translateY(-2px); }
         
-        /* The "Forgot PIN" link style */
         .forgot-link {
-            display: inline-block; margin-top: 20px; color: #0747a6; text-decoration: none;
+            display: inline-block; margin-top: 15px; color: #0747a6; text-decoration: none;
             font-size: 11px; font-weight: bold; background: #f0f4f8; padding: 8px 12px; border-radius: 6px;
         }
 
-        /* --- MAIN DASHBOARD STYLING --- */
+        /* --- DASHBOARD STYLES --- */
         header { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        
-        /* Client Folder Grid */
         .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .client-card { 
             background: white; padding: 30px 20px; border-radius: 18px; text-align: center; 
             cursor: pointer; border: 1px solid #ddd; transition: 0.3s; position: relative; 
         }
-        .client-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .client-card:hover { transform: translateY(-5px); border-color: var(--primary); }
         .delete-btn { position: absolute; top: 12px; right: 15px; color: #ccc; cursor: pointer; font-size: 20px; }
-        .delete-btn:hover { color: #ff5630; }
 
-        /* Agency Portal Cards */
         .agency-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
         .agency-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* MODALS (Popups) */
+        /* MODALS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 360px; }
+        .modal-content input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
         
-        /* Incorrect PIN Shake Animation */
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
         .shake-effect { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
@@ -83,14 +78,26 @@
     <div id="lock-screen">
         <div class="lock-box" id="lock-box-container">
             <div style="font-size: 55px;">🛡️</div>
-            <h2 style="color: #0747a6; margin-top: 10px;">Secure Vault</h2>
-            <p style="color:#666; margin-bottom: 25px;">Welcome back, Maurice</p>
+            <h2 style="color: #0747a6; margin: 10px 0 5px 0;">Secure Vault</h2>
             
-            <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="8" autofocus>
-            
-            <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
-            <br>
-            <a href="#" class="forgot-link" onclick="contactDevForRecovery()">FORGOT PIN? REQUEST RECOVERY VIA GMAIL</a>
+            <div id="standard-login">
+                <p style="color:#666; margin-bottom: 20px;">Welcome back, Maurice</p>
+                <input type="password" id="pin-input" class="pin-input-field" placeholder="••••" maxlength="8" autofocus>
+                <button class="btn-login" onclick="attemptUnlock()">Unlock Dashboard</button>
+                <br>
+                <a href="#" class="forgot-link" onclick="contactDevForRecovery()">FORGOT PIN? REQUEST RECOVERY</a>
+                <br>
+                <a href="#" style="font-size:10px; color:#999; text-decoration:none; margin-top:15px; display:inline-block;" onclick="toggleRecoveryField(true)">I already have a Recovery Key</a>
+            </div>
+
+            <div id="recovery-login" style="display:none;">
+                <p style="color:var(--recovery); font-size: 13px; font-weight: bold;">ENTER RECOVERY KEY</p>
+                <p style="font-size:11px; color:#777; margin-bottom: 15px;">Paste the code Tonny sent you below to reset your PIN to 1234.</p>
+                <input type="text" id="recovery-key-input" class="pin-input-field" placeholder="VAULT-XXXX" style="letter-spacing: 2px; font-size: 18px;">
+                <button class="btn-login" style="background:var(--recovery);" onclick="resetVaultWithKey()">Reset PIN to 1234</button>
+                <br>
+                <a href="#" style="font-size:10px; color:#999; text-decoration:none; margin-top:15px; display:inline-block;" onclick="toggleRecoveryField(false)">Back to Login</a>
+            </div>
         </div>
     </div>
 
@@ -155,18 +162,14 @@
 
     <script>
         /* --- SYSTEM INITIALIZATION --- */
-        
-        // Default login is 1234
         if (!localStorage.getItem('vault_master_pin')) localStorage.setItem('vault_master_pin', '1234');
         
-        // Generate unique recovery key for the specific browser
         if (!localStorage.getItem('vault_recovery_key')) {
             const rk = "VAULT-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
             localStorage.setItem('vault_recovery_key', rk);
             localStorage.setItem('recovery_notice_shown', 'false');
         }
 
-        // Full Configuration of Kenyan Administrative Portals
         const agencyConfig = [
             { id: 'itax', name: 'KRA iTax Portal', url: 'https://itax.kra.go.ke/' },
             { id: 'egms', name: 'KRA EGMS', url: 'https://egms.kra.go.ke/' },
@@ -188,7 +191,6 @@
         let activeClientId = null;
         let activeAgencyId = null;
 
-        // On Load Logic
         function init() {
             if (localStorage.getItem('vault_v2_auth') === 'true') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -215,24 +217,40 @@
             }
         }
 
-        // REDIRECT TO GMAIL: Direct link to Gmail Compose
+        // REDIRECT TO GMAIL: Direct link to Tonny's inbox
         function contactDevForRecovery() {
             const key = localStorage.getItem('vault_recovery_key');
             const devEmail = "tonnyodhiambo125@gmail.com"; 
             const subject = "Vault Recovery Request - Maurice";
             const body = "Hi Tonny,\n\nI have forgotten my Vault PIN and need my recovery key.\n\nSYSTEM ID: " + key + "\n\nPlease send me the unlock code. Thanks!";
-
-            // Direct link to Gmail's 'Compose' window
             const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${devEmail}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-            // Open in a new tab
             window.open(gmailUrl, '_blank');
-
-            // Backup Alert
             alert("Opening Gmail... If the tab didn't open, please email " + devEmail + " with ID: " + key);
         }
 
-        /* --- CORE VAULT FUNCTIONS --- */
+        /* --- NEW: RECOVERY RESET LOGIC --- */
+
+        // Switches view between Login and Recovery Key input
+        function toggleRecoveryField(isRecovery) {
+            document.getElementById('standard-login').style.display = isRecovery ? 'none' : 'block';
+            document.getElementById('recovery-login').style.display = isRecovery ? 'block' : 'none';
+        }
+
+        // Maurice enters the code you sent him here
+        function resetVaultWithKey() {
+            const inputKey = document.getElementById('recovery-key-input').value.trim();
+            const actualKey = localStorage.getItem('vault_recovery_key');
+
+            if (inputKey === actualKey) {
+                localStorage.setItem('vault_master_pin', '1234');
+                alert("PIN Reset Successful! Your PIN is now 1234. Use it to log in now.");
+                toggleRecoveryField(false);
+            } else {
+                alert("Invalid Key. Please check the code Tonny sent you.");
+            }
+        }
+
+        /* --- CORE FUNCTIONS --- */
 
         function renderHome() {
             const grid = document.getElementById('clientGrid');
@@ -255,13 +273,10 @@
             grid.innerHTML = agencyConfig.map(a => {
                 const data = client.creds[a.id] || { u: 'Not Set', p: '' };
                 return `<div class="agency-card">
-                    <div>
-                        <strong style="color:var(--primary)">${a.name}</strong><br>
-                        <small style="color:#777">User: ${data.u}</small>
-                    </div>
+                    <div><strong style="color:var(--primary)">${a.name}</strong><br><small>User: ${data.u}</small></div>
                     <div style="margin-top:10px;">
-                        <button style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; font-size:12px;" onclick="launch('${a.id}')">Launch & Copy</button>
-                        <button style="background:none; border:none; color:#999; width:100%; margin-top:5px; cursor:pointer; font-size:11px;" onclick="openModal('${a.id}')">Edit credentials</button>
+                        <button style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:8px; cursor:pointer;" onclick="launch('${a.id}')">Launch & Copy</button>
+                        <button style="background:none; border:none; color:#999; width:100%; margin-top:5px; cursor:pointer; font-size:11px;" onclick="openModal('${a.id}')">Edit Credentials</button>
                     </div>
                 </div>`;
             }).join('');
@@ -271,37 +286,31 @@
             const client = clients.find(c => c.id === activeClientId);
             const agency = agencyConfig.find(a => a.id === agencyId);
             const data = client.creds[agencyId];
-            if (!data || !data.p) return alert("Please set a password first.");
-            navigator.clipboard.writeText(data.p).then(() => { 
-                alert("PIN Copied!"); 
-                window.open(agency.url, '_blank'); 
-            });
+            if (!data || !data.p) return alert("Set password first.");
+            navigator.clipboard.writeText(data.p).then(() => { alert("PIN Copied!"); window.open(agency.url, '_blank'); });
         }
 
         function addClient() {
             const name = document.getElementById('newClientName').value;
             if (!name) return;
             clients.push({ id: Date.now(), name, creds: {} });
-            saveData(); 
-            renderHome();
+            saveData(); renderHome();
             document.getElementById('newClientName').value = '';
         }
 
-        function deleteClient(id) { if (confirm("Delete client folder?")) { clients = clients.filter(c => c.id !== id); saveData(); renderHome(); } }
+        function deleteClient(id) { if (confirm("Delete client?")) { clients = clients.filter(c => c.id !== id); saveData(); renderHome(); } }
         function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function logout() { localStorage.removeItem('vault_v2_auth'); location.reload(); }
         function dismissNotice() { localStorage.setItem('recovery_notice_shown', 'true'); document.getElementById('recovery-notice').style.display = 'none'; }
         function goHome() { document.getElementById('home-view').style.display = 'block'; document.getElementById('folder-view').style.display = 'none'; }
         function saveData() { localStorage.setItem('vault_v2_data', JSON.stringify(clients)); }
-        
         function openModal(aId) { 
             activeAgencyId = aId; 
             const c = clients.find(cl => cl.id === activeClientId);
             const data = c.creds[aId] || { u: '', p: '' };
-            document.getElementById('modal-subtitle').innerText = "Portal: " + agencyConfig.find(a => a.id === aId).name;
-            document.getElementById('edit-user').value = data.u; 
-            document.getElementById('edit-pass').value = data.p;
+            document.getElementById('modal-subtitle').innerText = agencyConfig.find(a => a.id === aId).name;
+            document.getElementById('edit-user').value = data.u; document.getElementById('edit-pass').value = data.p;
             document.getElementById('cred-modal').style.display = 'flex'; 
         }
 
@@ -315,10 +324,10 @@
             const old = document.getElementById('old-pin').value;
             const n1 = document.getElementById('new-pin').value;
             const n2 = document.getElementById('confirm-pin').value;
-            if (old !== localStorage.getItem('vault_master_pin')) return alert("Current PIN incorrect.");
-            if (n1 !== n2 || n1.length < 4) return alert("New PINs do not match or are too short.");
+            if (old !== localStorage.getItem('vault_master_pin')) return alert("Incorrect PIN.");
+            if (n1 !== n2 || n1.length < 4) return alert("Mismatch or too short.");
             localStorage.setItem('vault_master_pin', n1);
-            alert("PIN Successfully Updated!"); logout();
+            alert("PIN Updated!"); logout();
         }
 
         init();
